@@ -1,11 +1,12 @@
 const asyncHandler = require('express-async-handler')
 const Wish = require('../models/wishModel')
+const User = require('../models/userModel')
 
 // @desc Get wishes
 // @route GET /api/wishes
 // @access Private
 const getWishes = asyncHandler(async (req, res) => {
-    wishes = await Wish.find()
+    wishes = await Wish.find({userId:req.user.id})
     res.status(200).json({
         message: wishes
     })
@@ -21,7 +22,8 @@ const setWish = asyncHandler(async (req, res) => {
     }
 
     const wish = await Wish.create({
-        message: req.body.message
+        message: req.body.message,
+        userId: req.user.id
     })
 
     res.status(200).json(wish)
@@ -37,6 +39,17 @@ const updateWish = asyncHandler(async (req, res) => {
         throw new Error('Wish not found')
     }
 
+    const user = await User.findById(req.user.id)
+    if(!user) {
+        res.status(401)
+        throw new Error('User not found')
+    }
+    
+    if (wish.userId.toString() !== user.id) {
+        res.status(401)
+        throw new Error('User not authorized')
+    }
+
     const updatedGoal = await Wish.findByIdAndUpdate(req.params.id, req.body, {new:true})
     res.status(200).json(updatedGoal)
 })
@@ -49,6 +62,17 @@ const deleteWish = asyncHandler(async (req, res) => {
     if(!wish){
         res.status(400)
         throw new Error('Wish not found')
+    }
+
+    const user = await User.findById(req.user.id)
+    if(!user) {
+        res.status(401)
+        throw new Error('User not found')
+    }
+        
+    if (wish.userId.toString() !== user.id) {
+        res.status(401)
+        throw new Error('User not authorized')
     }
 
     await wish.remove()
