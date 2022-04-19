@@ -8,7 +8,7 @@ const User = require('../models/userModel')
 const getWishes = asyncHandler(async (req, res) => {
     wishes = await Wish.find({userId:req.user.id})
     res.status(200).json({
-        message: wishes
+        messages: wishes
     })
 })
 
@@ -47,7 +47,7 @@ const updateWish = asyncHandler(async (req, res) => {
     
     if (wish.userId.toString() !== user.id) {
         res.status(401)
-        throw new Error('User not authorized')
+        throw new Error('User is not authorized to update the wish message')
     }
 
     const updatedGoal = await Wish.findByIdAndUpdate(req.params.id, req.body, {new:true})
@@ -72,7 +72,7 @@ const deleteWish = asyncHandler(async (req, res) => {
         
     if (wish.userId.toString() !== user.id) {
         res.status(401)
-        throw new Error('User not authorized')
+        throw new Error('User is not authorized to delete the wish message')
     }
 
     await wish.remove()

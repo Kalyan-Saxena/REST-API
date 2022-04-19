@@ -36,8 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
     if (user) {
         res.status(201).json(
             {
-                user,
-                token: generateToken(user.id)
+                message: 'User Registration successful'
             }
         )
     } else {
@@ -62,7 +61,9 @@ const loginUser = asyncHandler(async (req, res) => {
         res.status(200).json(
             {
                 user,
-                token: generateToken(user.id)
+                token: generateToken(user.id),
+                expiresIn: 3600,
+                message: 'User login successful'
             }
         )
     } else {
